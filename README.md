@@ -17,10 +17,6 @@
 > This library is currently in alpha stage: the lib is not very stable yet, and there may be a lot of bugs
 > feel free to try it out, though, any feedback is appreciated!
 
-> [!IMPORTANT]  
-> Don't use methods from the elliptic curves objects (`GostCurveFn`). Use methods directly from library 
-> (`sign`, `verify`, etc.)
-
 ## Installation
 
 ```bash

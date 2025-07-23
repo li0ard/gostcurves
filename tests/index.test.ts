@@ -1,8 +1,8 @@
-import { hexToBytes } from "@noble/hashes/utils"
+import { hexToBytes } from "@noble/curves/utils"
 import { describe, test, expect } from "bun:test"
-import { getPublicKey, ID_GOSTR3410_2001_PARAM_SET_CC, ID_GOSTR3410_2001_TEST_PARAM_SET, ID_GOSTR3410_2012_256_PARAM_SET_A, ID_GOSTR3410_2012_256_PARAM_SET_B, ID_GOSTR3410_2012_256_PARAM_SET_C, ID_GOSTR3410_2012_256_PARAM_SET_D, ID_GOSTR3410_2012_512_PARAM_SET_A, ID_GOSTR3410_2012_512_PARAM_SET_B, ID_GOSTR3410_2012_512_PARAM_SET_C, ID_GOSTR3410_2012_512_TEST_PARAM_SET, sign, verify, type GostCurveFn } from "../src"
+import { getPublicKey, ID_GOSTR3410_2001_PARAM_SET_CC, ID_GOSTR3410_2001_TEST_PARAM_SET, ID_GOSTR3410_2012_256_PARAM_SET_A, ID_GOSTR3410_2012_256_PARAM_SET_B, ID_GOSTR3410_2012_256_PARAM_SET_C, ID_GOSTR3410_2012_256_PARAM_SET_D, ID_GOSTR3410_2012_512_PARAM_SET_A, ID_GOSTR3410_2012_512_PARAM_SET_B, ID_GOSTR3410_2012_512_PARAM_SET_C, ID_GOSTR3410_2012_512_TEST_PARAM_SET, sign, verify, type GostCurveParameters } from "../src"
 
-const performTest = ((curve: GostCurveFn, privKey: Uint8Array, digest: Uint8Array, rand: Uint8Array, expectedPk: Uint8Array, expectedSign: Uint8Array) => {
+const performTest = ((curve: GostCurveParameters, privKey: Uint8Array, digest: Uint8Array, rand: Uint8Array, expectedPk: Uint8Array, expectedSign: Uint8Array) => {
     let publicKey = getPublicKey(curve, privKey)
     let signature = sign(curve, privKey, digest, rand)
     expect(publicKey).toStrictEqual(expectedPk)
