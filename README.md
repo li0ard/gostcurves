@@ -27,7 +27,18 @@ npm i @li0ard/gostcurves
 bunx jsr i @li0ard/gostcurves
 ```
 
-## Usage
+## Supported modes:
+- [x] DSA (various curves included)
+- [x] VKO key agreement function
+- [x] Points conversion from Weierstrass to Twisted Edwards form and vice versa
+
+## Features
+- Provides simple and modern API
+- Most of the APIs are strictly typed
+- Fully complies with [GOST R 34.10-2012 (RFC 7091)](https://datatracker.ietf.org/doc/html/rfc7091) and [GOST R 34.10-2001 (RFC 5832)](https://datatracker.ietf.org/doc/html/rfc5832) standard
+- Supports Bun, Node.js, Deno, Browsers
+
+## Examples
 ### Create signature
 
 ```ts

@@ -1,4 +1,4 @@
-import { Gost341194 } from "@li0ard/gost341194";
+import { gost341194 } from "@li0ard/gost341194";
 import { kdf_tree_gostr3411_2012_256, streebog256, streebog512 } from "@li0ard/streebog";
 import { bytesToNumberBE, concatBytes, hexToBytes, numberToBytesLE } from "@noble/curves/utils";
 import type { GostCurveParameters } from "./const";
@@ -29,7 +29,7 @@ export const kek = (parameters: GostCurveParameters, prv: Uint8Array, pub: Uint8
  * @param ukm User keying material (aka salt)
  * @returns {Uint8Array} Shared key
  */
-export const kek_34102001 = (parameters: GostCurveParameters, prv: Uint8Array, pub: Uint8Array, ukm: Uint8Array): Uint8Array => Gost341194.create().update(kek(parameters, prv, pub, ukm)).digest();
+export const kek_34102001 = (parameters: GostCurveParameters, prv: Uint8Array, pub: Uint8Array, ukm: Uint8Array): Uint8Array => gost341194(kek(parameters, prv, pub, ukm));
 
 /**
  * Key agreement function over Streebog (GOST R 34.11-2012) 256 bit hash
