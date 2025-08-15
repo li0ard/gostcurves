@@ -28,7 +28,8 @@ export const sign = (parameters: GostCurveParameters, prv: Uint8Array, digest: U
 
     let prvNum = Fn.fromBytes(prv);
     while (true) {
-        let k = mod(bytesToNumberBE(rand ?? randomBytes(size)), parameters.n);
+        rand ||= randomBytes(size)
+        let k = mod(bytesToNumberBE(rand), parameters.n);
         if(k === 0n) continue;
         try {
             let {x: r} = curve.BASE.multiply(k);
@@ -67,15 +68,13 @@ export const verify = (parameters: GostCurveParameters, pub: Uint8Array, digest:
     let e = Fn.fromBytes(digest);
     if(e === 0n) e = 1n;
 
-    let v = Fn.inv(e)
+    let v = Fn.inv(e);
 
-    let z1 = Fn.mul(s, v),
-        z2 = Fn.sub(parameters.n, Fn.mul(r, v));
-    
+    let z1 = Fn.mul(s, v), z2 = Fn.mul(r, v);
     let P, Q;
     try {
         P = curve.BASE.multiply(z1);
-        Q = curve.fromBytes(pub).multiply(z2);
+        Q = curve.fromBytes(pub).multiply(z2).negate();
     } catch { return false; }
     return Fn.create(P.add(Q).x) === r;
 }

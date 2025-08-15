@@ -1,6 +1,6 @@
 {
   "name": "@li0ard/gostcurves",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -29,7 +29,7 @@
   "dependencies": {
     "@li0ard/gost341194": "^0.1.3",
     "@li0ard/streebog": "^0.2.4",
-    "@noble/curves": "^1.9.4"
+    "@noble/curves": "^1.9.7"
   },
   "files": ["dist"],
   "publishConfig": {
