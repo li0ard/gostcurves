@@ -1,7 +1,7 @@
-import { bytesToNumberBE, concatBytes, numberToBytesBE, randomBytes } from "@noble/curves/utils";
-import { type GostCurveParameters } from "./const";
-import { mod } from "@noble/curves/abstract/modular";
-import { weierstrassN } from "@noble/curves/abstract/weierstrass";
+import { bytesToNumberBE, concatBytes, numberToBytesBE, randomBytes } from "@noble/curves/utils.js";
+import { type GostCurveParameters } from "./const.js";
+import { mod } from "@noble/curves/abstract/modular.js";
+import { weierstrassN } from "@noble/curves/abstract/weierstrass.js";
 
 /**
  * Generate public key from private.
@@ -79,6 +79,6 @@ export const verify = (parameters: GostCurveParameters, pub: Uint8Array, digest:
     return Fn.create(P.add(Q).x) === r;
 }
 
-export * from "./const";
-export * from "./vko";
-export * from "./conversion";
+export * from "./const.js";
+export * from "./vko.js";
+export * from "./conversion.js";

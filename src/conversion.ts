@@ -1,6 +1,6 @@
-import type { AffinePoint } from "@noble/curves/abstract/curve";
-import type { GostCurveParameters } from "./const";
-import { Field } from "@noble/curves/abstract/modular";
+import type { AffinePoint } from "@noble/curves/abstract/curve.js";
+import type { GostCurveParameters } from "./const.js";
+import { Field } from "@noble/curves/abstract/modular.js";
 
 /**
  * Compute parameters (`s`, `t`) for conversion

@@ -1,9 +1,9 @@
 import { gost341194 } from "@li0ard/gost341194";
 import { kdf_tree_gostr3411_2012_256, streebog256, streebog512 } from "@li0ard/streebog";
-import { bytesToNumberBE, concatBytes, hexToBytes, numberToBytesLE } from "@noble/curves/utils";
-import type { GostCurveParameters } from "./const";
-import { Field } from "@noble/curves/abstract/modular";
-import { weierstrassN } from "@noble/curves/abstract/weierstrass";
+import { bytesToNumberBE, concatBytes, hexToBytes, numberToBytesLE } from "@noble/curves/utils.js";
+import type { GostCurveParameters } from "./const.js";
+import { Field } from "@noble/curves/abstract/modular.js";
+import { weierstrassN } from "@noble/curves/abstract/weierstrass.js";
 
 /**
  * Key agreement function (like ECDH)
