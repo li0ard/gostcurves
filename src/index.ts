@@ -1,15 +1,16 @@
-import { bytesToNumberBE, concatBytes, numberToBytesBE, randomBytes } from "@noble/curves/utils.js";
+import { bytesToNumberBE, concatBytes, numberToBytesBE, randomBytes, type TArg, type TRet } from "@noble/curves/utils.js";
 import { type GostCurveParameters } from "./const.js";
 import { mod } from "@noble/curves/abstract/modular.js";
-import { weierstrassN } from "@noble/curves/abstract/weierstrass.js";
+import { weierstrass } from "@noble/curves/abstract/weierstrass.js";
 
 /**
  * Generate public key from private.
  * @param parameters Curve parameters
  * @param prv Private key
- * @returns {Uint8Array} Uncompressed public key in ANSI X9.62 format
+ * @returns {TRet<Uint8Array>} Uncompressed public key in ANSI X9.62 format
  */
-export const getPublicKey = (parameters: GostCurveParameters, prv: Uint8Array): Uint8Array => weierstrassN(parameters).BASE.multiply(bytesToNumberBE(prv)).toBytes(false);
+export const getPublicKey = (parameters: GostCurveParameters, prv: TArg<Uint8Array>): TRet<Uint8Array> =>
+    weierstrass(parameters).BASE.multiply(bytesToNumberBE(prv)).toBytes(false);
 
 /**
  * Generate signature of provided digest
@@ -17,19 +18,24 @@ export const getPublicKey = (parameters: GostCurveParameters, prv: Uint8Array): 
  * @param prv Private key
  * @param digest Digest to sign
  * @param rand Optional. Predefined random data for `r` and `k` generation
- * @returns {Uint8Array} Concated `r` and `s`
+ * @returns {TRet<Uint8Array>} Concated `r` and `s`
  */
-export const sign = (parameters: GostCurveParameters, prv: Uint8Array, digest: Uint8Array, rand?: Uint8Array): Uint8Array => {
-    let size = parameters.length;
-    let curve = weierstrassN(parameters)
-    let Fn = curve.Fn;
+export const sign = (
+    parameters: GostCurveParameters,
+    prv: TArg<Uint8Array>,
+    digest: TArg<Uint8Array>,
+    rand?: TArg<Uint8Array>
+): TRet<Uint8Array> => {
+    const size = parameters.length;
+    const curve = weierstrass(parameters);
+    const Fn = curve.Fn;
     let e = Fn.fromBytes(digest);
     if(e === 0n) e = 1n;
 
-    let prvNum = Fn.fromBytes(prv);
+    const prvNum = Fn.fromBytes(prv);
     while (true) {
         rand ||= randomBytes(size)
-        let k = mod(bytesToNumberBE(rand), parameters.n);
+        const k = mod(bytesToNumberBE(rand), parameters.n);
         if(k === 0n) continue;
         try {
             let {x: r} = curve.BASE.multiply(k);
@@ -39,7 +45,10 @@ export const sign = (parameters: GostCurveParameters, prv: Uint8Array, digest: U
             const s = Fn.add(Fn.mul(r, prvNum), Fn.mul(k, e));
             if (s === 0n) continue;
 
-            return concatBytes(numberToBytesBE(r, parameters.length), numberToBytesBE(s, parameters.length))
+            return concatBytes(
+                numberToBytesBE(r, parameters.length),
+                numberToBytesBE(s, parameters.length)
+            );
         } catch(e) {
             if(e instanceof Error && e.message === "invalid scalar: out of range") continue;
             throw e;
@@ -54,23 +63,28 @@ export const sign = (parameters: GostCurveParameters, prv: Uint8Array, digest: U
  * @param digest Digest to verify
  * @param signature Signature (Concated `r` and `s`)
  */
-export const verify = (parameters: GostCurveParameters, pub: Uint8Array, digest: Uint8Array, signature: Uint8Array): boolean => {
-    let size = parameters.length;
-    let curve = weierstrassN(parameters)
-    let Fn = curve.Fn;
+export const verify = (
+    parameters: GostCurveParameters,
+    pub: TArg<Uint8Array>,
+    digest: TArg<Uint8Array>,
+    signature: TArg<Uint8Array>
+): boolean => {
+    const size = parameters.length;
+    const curve = weierstrass(parameters);
+    const Fn = curve.Fn;
 
-    if(signature.length != size * 2) throw new Error("Invalid signature")
+    if(signature.length != size * 2) throw new Error("Invalid signature");
 
-    let r = bytesToNumberBE(signature.slice(0, size));
-    let s = bytesToNumberBE(signature.slice(size));
+    const r = bytesToNumberBE(signature.slice(0, size));
+    const s = bytesToNumberBE(signature.slice(size));
 
     if(r <= 0 || r >= parameters.n || s <= 0 || s >= parameters.n) return false;
     let e = Fn.fromBytes(digest);
     if(e === 0n) e = 1n;
 
-    let v = Fn.inv(e);
+    const v = Fn.inv(e);
 
-    let z1 = Fn.mul(s, v), z2 = Fn.mul(r, v);
+    const z1 = Fn.mul(s, v), z2 = Fn.mul(r, v);
     let P, Q;
     try {
         P = curve.BASE.multiply(z1);

@@ -1,9 +1,9 @@
 import { gost341194 } from "@li0ard/gost341194";
 import { kdf_tree_gostr3411_2012_256, streebog256, streebog512 } from "@li0ard/streebog";
-import { bytesToNumberBE, concatBytes, hexToBytes, numberToBytesLE } from "@noble/curves/utils.js";
+import { bytesToNumberBE, concatBytes, hexToBytes, numberToBytesLE, type TArg, type TRet } from "@noble/curves/utils.js";
 import type { GostCurveParameters } from "./const.js";
 import { Field } from "@noble/curves/abstract/modular.js";
-import { weierstrassN } from "@noble/curves/abstract/weierstrass.js";
+import { weierstrass } from "@noble/curves/abstract/weierstrass.js";
 
 /**
  * Key agreement function (like ECDH)
@@ -11,11 +11,16 @@ import { weierstrassN } from "@noble/curves/abstract/weierstrass.js";
  * @param prv Private key
  * @param pub Public key
  * @param ukm User keying material (aka salt)
- * @returns {Uint8Array} Shared key
+ * @returns {TRet<Uint8Array>} Shared key
  */
-export const kek = (parameters: GostCurveParameters, prv: Uint8Array, pub: Uint8Array, ukm: Uint8Array): Uint8Array => {
-    let Fn = Field(parameters.n);
-    let key = weierstrassN(parameters).fromBytes(pub)
+export const kek = (
+    parameters: GostCurveParameters,
+    prv: TArg<Uint8Array>,
+    pub: TArg<Uint8Array>,
+    ukm: TArg<Uint8Array>
+): TRet<Uint8Array> => {
+    const Fn = Field(parameters.n);
+    const key = weierstrass(parameters).fromBytes(pub)
         .multiply(bytesToNumberBE(prv))
         .multiply(Fn.mulN(parameters.h, bytesToNumberBE(ukm)));
     return concatBytes(numberToBytesLE(key.x, parameters.length), numberToBytesLE(key.y, parameters.length))
@@ -27,9 +32,15 @@ export const kek = (parameters: GostCurveParameters, prv: Uint8Array, pub: Uint8
  * @param prv Private key
  * @param pub Public key
  * @param ukm User keying material (aka salt)
- * @returns {Uint8Array} Shared key
+ * @returns {TRet<Uint8Array>} Shared key
  */
-export const kek_34102001 = (parameters: GostCurveParameters, prv: Uint8Array, pub: Uint8Array, ukm: Uint8Array): Uint8Array => gost341194(kek(parameters, prv, pub, ukm));
+export const kek_34102001 = (
+    parameters: GostCurveParameters,
+    prv: TArg<Uint8Array>,
+    pub: TArg<Uint8Array>,
+    ukm: TArg<Uint8Array>
+): TRet<Uint8Array> =>
+    gost341194(kek(parameters, prv, pub, ukm));
 
 /**
  * Key agreement function over Streebog (GOST R 34.11-2012) 256 bit hash
@@ -37,9 +48,14 @@ export const kek_34102001 = (parameters: GostCurveParameters, prv: Uint8Array, p
  * @param prv Private key
  * @param pub Public key
  * @param ukm User keying material (aka salt)
- * @returns {Uint8Array} Shared key
+ * @returns {TRet<Uint8Array>} Shared key
  */
-export const kek_34102012256 = (parameters: GostCurveParameters, prv: Uint8Array, pub: Uint8Array, ukm: Uint8Array): Uint8Array => streebog256(kek(parameters, prv, pub, ukm));
+export const kek_34102012256 = (
+    parameters: GostCurveParameters,
+    prv: TArg<Uint8Array>,
+    pub: TArg<Uint8Array>,
+    ukm: TArg<Uint8Array>
+): TRet<Uint8Array> => streebog256(kek(parameters, prv, pub, ukm));
 
 /**
  * Key agreement function over Streebog (GOST R 34.11-2012) 512 bit hash
@@ -47,9 +63,14 @@ export const kek_34102012256 = (parameters: GostCurveParameters, prv: Uint8Array
  * @param prv Private key
  * @param pub Public key
  * @param ukm User keying material (aka salt)
- * @returns {Uint8Array} Shared key
+ * @returns {TRet<Uint8Array>} Shared key
  */
-export const kek_34102012512 = (parameters: GostCurveParameters, prv: Uint8Array, pub: Uint8Array, ukm: Uint8Array): Uint8Array => streebog512(kek(parameters, prv, pub, ukm));
+export const kek_34102012512 = (
+    parameters: GostCurveParameters,
+    prv: TArg<Uint8Array>,
+    pub: TArg<Uint8Array>,
+    ukm: TArg<Uint8Array>
+): TRet<Uint8Array> => streebog512(kek(parameters, prv, pub, ukm));
 
 /**
  * Export key generation
@@ -59,10 +80,15 @@ export const kek_34102012512 = (parameters: GostCurveParameters, prv: Uint8Array
  * @param h `h`-value (32 bytes)
  * @experimental Not tested, cuz there is no test vectors in standard
  */
-export const keg = (parameters: GostCurveParameters, prv: Uint8Array, pub: Uint8Array, h: Uint8Array): Uint8Array => {
+export const keg = (
+    parameters: GostCurveParameters,
+    prv: TArg<Uint8Array>,
+    pub: TArg<Uint8Array>,
+    h: TArg<Uint8Array>
+): TRet<Uint8Array> => {
     if(h.length !== 32) throw new Error("Invalid 'h' length. Must be 32 bytes");
 
     if(parameters.length == 64) return kek_34102012512(parameters, prv, pub, h.slice(0, 16));
-    let k_exp = kek_34102012256(parameters, prv, pub, h.slice(0, 16))
-    return concatBytes(...kdf_tree_gostr3411_2012_256(k_exp, hexToBytes("6b64662074726565"), h.slice(16, 24), 2))
+    const k_exp = kek_34102012256(parameters, prv, pub, h.slice(0, 16));
+    return concatBytes(...kdf_tree_gostr3411_2012_256(k_exp, hexToBytes("6b64662074726565"), h.slice(16, 24), 2));
 }
